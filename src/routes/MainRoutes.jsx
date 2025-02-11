@@ -12,6 +12,7 @@ const Users = Loadable(lazy(() => import('pages/users/index')));
 const Announcements = Loadable(lazy(() => import('pages/announcements/index')));
 const Contests = Loadable(lazy(() => import('pages/contests/index')));
 const Problems = Loadable(lazy(() => import('pages/problems/index')));
+const IndividualProblem = Loadable(lazy(() => import ('pages/problems/indivprob/index')))
 
 
 // render - sample page
@@ -63,6 +64,10 @@ const MainRoutes = {
     {
       path: 'problems',
       element: <Problems />
+    },
+    {
+      path: 'problems/single/:id',
+      element: <IndividualProblem />
     },
     {
       path: 'contests',

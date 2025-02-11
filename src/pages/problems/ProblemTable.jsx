@@ -12,7 +12,10 @@
 //   Button,
 // } from "@mui/material";
 
-// const ProblemTable = ({ title, problems, headerColor, onSeeAll, showSeeAll, isExpanded }) => {
+// const ProblemTable = ({ title, problems, headerColor, onToggleExpand, isExpanded }) => {
+//   const showToggleButton = problems.length > 5; // Show button only if problems are more than 5
+//   const displayedProblems = isExpanded ? problems : problems.slice(0, 5);
+
 //   return (
 //     <TableContainer
 //       component={Paper}
@@ -45,7 +48,7 @@
 //           </TableRow>
 //         </TableHead>
 //         <TableBody>
-//           {problems.map((problem) => (
+//           {displayedProblems.map((problem) => (
 //             <TableRow
 //               key={problem.id}
 //               sx={{
@@ -72,11 +75,11 @@
 //         </TableBody>
 //       </Table>
 
-//       {/* Show "See All" only if there are more rows to expand */}
-//       {showSeeAll && (
+//       {/* Ensure the "Show All" / "Show Less" button is always visible when needed */}
+//       {showToggleButton && (
 //         <Box sx={{ p: 2, textAlign: "center" }}>
-//           <Button onClick={onSeeAll} sx={{ fontWeight: "bold", color: "#1a237e" }}>
-//             {isExpanded ? "Show Less" : "See All"}
+//           <Button onClick={onToggleExpand} sx={{ fontWeight: "bold", color: "#1a237e" }}>
+//             {isExpanded ? "Show Less" : "Show All"}
 //           </Button>
 //         </Box>
 //       )}
@@ -89,8 +92,8 @@
 
 
 
-
 import React from "react";
+import { useNavigate } from "react-router-dom"; // Navigation hook
 import {
   Table,
   TableBody,
@@ -105,7 +108,9 @@ import {
 } from "@mui/material";
 
 const ProblemTable = ({ title, problems, headerColor, onToggleExpand, isExpanded }) => {
-  const showToggleButton = problems.length > 5; // Show button only if problems are more than 5
+  const navigate = useNavigate(); // Initialize navigate function
+
+  const showToggleButton = problems.length > 5; // Only show toggle if there are more than 5 problems
   const displayedProblems = isExpanded ? problems : problems.slice(0, 5);
 
   return (
@@ -143,7 +148,12 @@ const ProblemTable = ({ title, problems, headerColor, onToggleExpand, isExpanded
           {displayedProblems.map((problem) => (
             <TableRow
               key={problem.id}
+              onClick={() => navigate(`/problems/single/${problem.id}`)} // Match your route structure
               sx={{
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "rgba(0, 0, 255, 0.1)", // Light blue hover effect
+                },
                 "&:nth-of-type(odd)": {
                   backgroundColor: "rgba(0, 0, 0, 0.02)",
                 },
@@ -167,7 +177,7 @@ const ProblemTable = ({ title, problems, headerColor, onToggleExpand, isExpanded
         </TableBody>
       </Table>
 
-      {/* Ensure the "Show All" / "Show Less" button is always visible when needed */}
+      {/* Show All / Show Less Button */}
       {showToggleButton && (
         <Box sx={{ p: 2, textAlign: "center" }}>
           <Button onClick={onToggleExpand} sx={{ fontWeight: "bold", color: "#1a237e" }}>

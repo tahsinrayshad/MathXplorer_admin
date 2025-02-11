@@ -1,11 +1,13 @@
+import React from 'react';
 import { Outlet } from 'react-router-dom';
 
-// ==============================|| MINIMAL LAYOUT ||============================== //
-
-export default function MinimalLayout() {
+// This layout will be used specifically for the login and register pages
+const MinimalLayout = () => {
   return (
-    <>
-      <Outlet />
-    </>
+    <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <Outlet /> {/* This is where the content for the login/register page will go */}
+    </div>
   );
-}
+};
+
+export default MinimalLayout;

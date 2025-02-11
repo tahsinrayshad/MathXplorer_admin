@@ -8,6 +8,7 @@ import AnnouncementIcon from '@mui/icons-material/Announcement';
 
 // icons
 const icons = {
+
   DashboardOutlined
 };
 
@@ -22,7 +23,7 @@ const dashboard = {
       id: 'dashboard',
       title: 'Dashboard',
       type: 'item',
-      url: '/dashboard/default',
+      url: '/dashboard',
       icon: icons.DashboardOutlined,
       breadcrumbs: false
     },

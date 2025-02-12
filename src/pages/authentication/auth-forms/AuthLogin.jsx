@@ -52,31 +52,6 @@ export default function AuthLogin({ isDemo = false }) {
         password: Yup.string().max(255).required('Password is required'),
       })}
 
-      // onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-      //   try {
-      //     const response = await axios.post('http://127.0.0.1:8000/api/auth/login/', {
-      //       email: values.email,
-      //       password: values.password,
-      //     });
-
-      //     const { access_token, token_type, expires_in } = response.data;
-
-      //     if (access_token) {
-      //       localStorage.setItem('token', access_token);
-      //       Cookies.set('token_type', token_type, { expires: expires_in / (60 * 24) });
-      //       Cookies.set('access_token', access_token, { expires: expires_in / (60 * 24) });
-      //       navigate('/dashboard'); // Redirect to dashboard after successful login
-      //     } else {
-      //       setStatus({ success: false });
-      //       setErrors({ submit: 'Login failed, please try again.' });
-      //     }
-      //   } catch (error) {
-      //     setStatus({ success: false });
-      //     setErrors({ submit: error.message });
-      //     setSubmitting(false);
-      //   }
-      // }}
-
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
           const response = await axios.post('http://127.0.0.1:8000/api/auth/login/', {

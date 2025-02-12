@@ -4,59 +4,66 @@ import MDEditor from '@uiw/react-md-editor';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeMathjax from 'rehype-mathjax';
-import axios from 'axios';
+import axios from 'axios'; // Make sure this path is correct for your axios instance
 import { useNavigate } from 'react-router-dom';
-import { deepPurple, deepOrange, blue, green, red } from '@mui/material/colors';
 
-export default function BlogWriter() {
+export default function AnnouncementWriter() {
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
   const [error, setError] = useState(null);
 
   const navigate = useNavigate(); // Initialize useNavigate
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      console.error('Access token is missing');
+      return; // If there's no token, stop the submission
+    }
+  
     try {
-      const response = await axios.post('/blog/create', {
-        title,
-        content,
-        category,
-      });
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/notice/create/',
+        {
+          title, // Ensure 'title' is sent
+          content: description, // Map 'description' to 'content' to match backend
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the request headers
+          },
+        }
+      );
   
-      console.log('Blog post submitted:', response.data);
-  
-      // Extract the blog ID from the API response
-      const blogId = response.data.blog.id;
-  
-      if (!blogId) {
-        throw new Error('Blog ID not returned from the API.');
-      }
+      console.log('Announcement posted:', response.data);
   
       // Clear the form and error state
       setTitle('');
-      setContent('');
-      setCategory('');
+      setDescription('');
       setError(null);
   
-      // Redirect to the newly created blog page
-      navigate(`/blog/${blogId}`);
+      // Redirect to the announcements page
+      navigate('/announcements');  // Navigate to '/announcements' after successful submission
     } catch (err) {
       if (err.response && err.response.data) {
+        console.error('Error response from server:', err.response.data);
         setError(err.response.data); // Set the error response from the server
       } else {
-        console.error('Error submitting blog post:', err);
+        console.error('Error submitting announcement:', err);
       }
     }
   };
+  
   
 
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Write a New Blog Post
+          Write a New Announcement
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
@@ -71,29 +78,19 @@ export default function BlogWriter() {
                 error={!!error?.title}
                 helperText={error?.title ? error.title[0] : ''}
               />
-              <TextField
-                fullWidth
-                label="Category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                margin="normal"
-                required
-                error={!!error?.category}
-                helperText={error?.category ? error.category[0] : ''}
-              />
               <Box sx={{ my: 2 }}>
                 <Typography variant="h6" gutterBottom>
-                  Content
+                  Description
                 </Typography>
                 <MDEditor
-                  value={content}
-                  onChange={setContent}
+                  value={description}
+                  onChange={setDescription}
                   preview="edit"
                   height={400}
                 />
-                {error?.content && (
+                {error?.description && (
                   <Typography color="error" variant="body2">
-                    {error.content[0]}
+                    {error.description[0]}
                   </Typography>
                 )}
               </Box>
@@ -103,7 +100,7 @@ export default function BlogWriter() {
                 color="primary"
                 fullWidth
               >
-                Publish Blog Post
+                Publish Announcement
               </Button>
             </form>
           </Grid>
@@ -119,7 +116,7 @@ export default function BlogWriter() {
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeMathjax]}
               >
-                {content || 'Your content here...'}
+                {description || 'Your description here...'}
               </ReactMarkdown>
             </Paper>
           </Grid>
@@ -128,4 +125,3 @@ export default function BlogWriter() {
     </Container>
   );
 }
-

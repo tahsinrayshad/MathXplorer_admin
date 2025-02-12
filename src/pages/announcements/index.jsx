@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import React from 'react';
 import { Grid, Box } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
 import MainCard from 'components/MainCard';
 import AnnouncementsTable from './announcementtable';
 import { margin } from '@mui/system';
@@ -11,9 +11,12 @@ import { margin } from '@mui/system';
 // ==============================|| Announcement PAGE ||============================== //
 
 export default function SamplePage() {
+  const navigate = useNavigate(); // Initialize the navigate function
+
   const handleNewAnnouncement = () => {
-    // You can add your logic for handling new announcement creation here
+    // Navigate to the 'new announcement' page
     console.log("New Announcement button clicked!");
+    navigate('/announcements/new'); // This will navigate to the "/announcement/new" route
   };
 
   return (

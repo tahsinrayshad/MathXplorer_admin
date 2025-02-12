@@ -13,6 +13,8 @@ const Contests = Loadable(lazy(() => import('pages/contests/index')));
 const Problems = Loadable(lazy(() => import('pages/problems/index')));
 const IndividualProblem = Loadable(lazy(() => import('pages/problems/indivprob/index')));
 const NewAnnouncement = Loadable(lazy(() => import('pages/announcements/New/index')));
+const EditAnnouncement = Loadable(lazy(()=> import('pages/announcements/Edit/index')))
+
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -51,6 +53,10 @@ const MainRoutes = {
     {
       path: '/announcements/new',
       element: <NewAnnouncement /> // New announcement page
+    },
+    {
+      path: '/announcements/edit/:id',
+      element: <EditAnnouncement /> // Edit announcement page
     },
     {
       path: '/problems',

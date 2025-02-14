@@ -6,6 +6,7 @@ import { Grid, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
 import MainCard from 'components/MainCard';
 import { margin } from '@mui/system';
+import UpComing from './upcomingcontest';
 
 // ==============================|| Announcement PAGE ||============================== //
 
@@ -22,7 +23,7 @@ export default function SamplePage() {
     <div>
       <Grid rowSpacing={4.5} columnSpacing={2.75}>
         <Grid sx={{ mb: 3 }} item xs={12}>
-          <MainCard>
+          <MainCard sx={{ mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="h6" sx={{ flexGrow: 1 }}>
                 Contest
@@ -37,6 +38,9 @@ export default function SamplePage() {
               </Button>
             </Box>
           </MainCard>
+
+          {/*  Upcoming Contest */}
+          <UpComing />
         </Grid>
       </Grid>
     </div>

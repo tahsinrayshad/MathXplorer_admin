@@ -16,6 +16,8 @@ const NewAnnouncement = Loadable(lazy(() => import('pages/announcements/New/inde
 const EditAnnouncement = Loadable(lazy(()=> import('pages/announcements/Edit/index')))
 const CreateContest = Loadable(lazy(()=> import('pages/contests/New/index')))
 const UsersAdmin = Loadable(lazy(() => import('pages/users/mrAdmin/index')));
+const IndivContest = Loadable(lazy(() => import('pages/contests/IndivContest/index')));
+const EditContest = Loadable(lazy(() => import('pages/contests/EditContest/index')));
 
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -79,6 +81,14 @@ const MainRoutes = {
     {
       path: '/contests/new',
       element: <CreateContest /> // Create Contests page
+    },
+    {
+      path: '/contests/single/:id',
+      element: <IndivContest /> // View Contests page
+    },
+    {
+      path: '/contests/edit/:id',
+      element: <EditContest /> // Edit Contests page
     }
   ]
 };

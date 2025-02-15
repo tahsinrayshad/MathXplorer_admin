@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
 import MainCard from 'components/MainCard';
 import { margin } from '@mui/system';
 import UpComing from './upcomingcontest';
+import ActiveContest from './activecontest';
+import PreviousContest from './previouscontest';
 
 // ==============================|| Announcement PAGE ||============================== //
 
@@ -41,6 +43,12 @@ export default function SamplePage() {
 
           {/*  Upcoming Contest */}
           <UpComing />
+
+          {/*  Active Contest */}
+          <ActiveContest />
+
+          {/*  Previous Contest */}
+          <PreviousContest />
         </Grid>
       </Grid>
     </div>

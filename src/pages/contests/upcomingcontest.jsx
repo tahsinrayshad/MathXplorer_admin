@@ -18,7 +18,7 @@ import axios from "axios"; // Ensure correct import for axios
 const ContestData = () => {
   const [contests, setContests] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("id");
   const navigate = useNavigate(); // For navigation
@@ -171,7 +171,7 @@ const ContestData = () => {
       </TableContainer>
 
       <TablePagination
-        rowsPerPageOptions={[25, 50, 100]}
+        rowsPerPageOptions={[5, 25, 50, 100]}
         component="div"
         count={contests.length}
         rowsPerPage={rowsPerPage}

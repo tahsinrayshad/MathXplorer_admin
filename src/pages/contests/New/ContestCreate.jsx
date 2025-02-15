@@ -28,6 +28,7 @@ import ReactMarkdown from "react-markdown"; // For rendering Markdown
 import rehypeKatex from "rehype-katex"; // LaTeX support
 import remarkMath from "remark-math"; // Markdown math support
 import "katex/dist/katex.min.css"; // Required CSS for LaTeX rendering
+import { useNavigate } from "react-router-dom"; // Import for navigation
 
 export default function CreateContest() {
   const [formData, setFormData] = useState({
@@ -43,6 +44,7 @@ export default function CreateContest() {
   const [problemDialogOpen, setProblemDialogOpen] = useState(false);
   const [addedProblems, setAddedProblems] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate(); // For navigation
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -52,25 +54,64 @@ export default function CreateContest() {
     }));
   };
 
+  // Function to get user's local timezone
+const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+// Convert UTC+0 to Local Time in YYYY-MM-DD HH:MM:SS format
+const formatLocalTime = (utcTime) => {
+  if (!utcTime) return "";
+  const utcDate = new Date(utcTime + " UTC");
+
+  // Format to YYYY-MM-DD HH:MM:SS
+  return utcDate.toLocaleString("en-GB", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // Use 24-hour format
+    timeZone: userTimezone,
+  }).replace(",", "");
+};
+
+// Convert Local Time to UTC+0 Before Sending API Request in YYYY-MM-DD HH:MM:SS format
+const convertLocalToUTC = (localTime) => {
+  if (!localTime) return "";
   
+  // Ensure localTime is parsed correctly
+  const localDate = new Date(localTime);
+  
+  // Check if the date is valid
+  if (isNaN(localDate.getTime())) {
+    console.error("Invalid Date Format:", localTime);
+    return "";
+  }
+
+  return localDate.toISOString().slice(0, 19).replace("T", " ");
+};
 
 
   const handleCreateContest = () => {
-    if (problems.length > 0 && formData.title && formData.startTime && formData.endTime && formData.description) {
+    if (formData.title && formData.startTime && formData.endTime && formData.description) {
+      // Convert Start and End time to UTC+0 format
+      const startTimeUTC = convertLocalToUTC(formData.startTime);
+      const endTimeUTC = convertLocalToUTC(formData.endTime);
+  
       const contestPayload = {
         title: formData.title,
         description: formData.description,
-        start_time: formData.startTime,
-        end_time: formData.endTime,
+        start_time: startTimeUTC,  // Use converted start time
+        end_time: endTimeUTC,      // Use converted end time
       };
-
+  
       setLoading(true);
       const token = localStorage.getItem("token"); // Get token from localStorage
       if (!token) {
         console.error("No token found");
         return;
       }
-
+  
       axios
         .post("http://127.0.0.1:8000/api/contest/create/", contestPayload, {
           headers: {
@@ -78,10 +119,11 @@ export default function CreateContest() {
           },
         })
         .then((response) => {
-          console.log("API Response:", response.data);
-
-          if (response.data.message === "Contest created successfully") {
+  
+          if (response.data.message === "Contest Created Successfully") {
+            const contestId = response.data.contest.id; // ✅ Extract the contest ID
             alert("Contest created successfully!");
+            navigate(`/contests/single/${contestId}`); // ✅ Navigate using the correct ID
           } else {
             alert("Failed to create contest.");
           }
@@ -92,10 +134,11 @@ export default function CreateContest() {
         })
         .finally(() => setLoading(false));
     } else {
-      alert("Please make sure all required fields are filled and problems are selected.");
+      alert("Please make sure all required fields are filled.");
     }
   };
-
+  
+  
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>

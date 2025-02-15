@@ -146,20 +146,20 @@ export default function EditContest() {
     const token = localStorage.getItem("token");
     if (!token) return;
   
-    // Debugging: Log raw input before conversion
-    console.log("Raw Start Time from Form:", formData.startTime);
-    console.log("Raw End Time from Form:", formData.endTime);
+    // // Debugging: Log raw input before conversion
+    // console.log("Raw Start Time from Form:", formData.startTime);
+    // console.log("Raw End Time from Form:", formData.endTime);
   
-    // Convert times to UTC+0 format
-    const formattedStartTime = convertLocalToUTC(formData.startTime);
-    const formattedEndTime = convertLocalToUTC(formData.endTime);
+    // // Convert times to UTC+0 format
+    // const formattedStartTime = convertLocalToUTC(formData.startTime);
+    // const formattedEndTime = convertLocalToUTC(formData.endTime);
   
     // Get the user's timezone
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   
     // Debugging: Log formatted output
-    console.log(`Formatted Start Time: ${formattedStartTime} (TimeZone: ${userTimezone})`);
-    console.log(`Formatted End Time: ${formattedEndTime} (TimeZone: ${userTimezone})`);
+    // console.log(`Formatted Start Time: ${formattedStartTime} (TimeZone: ${userTimezone})`);
+    // console.log(`Formatted End Time: ${formattedEndTime} (TimeZone: ${userTimezone})`);
   
     try {
       await axios.post(

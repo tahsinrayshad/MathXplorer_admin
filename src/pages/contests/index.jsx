@@ -25,8 +25,8 @@ export default function SamplePage() {
         <Grid sx={{ mb: 3 }} item xs={12}>
           <MainCard sx={{ mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                Contest
+              <Typography variant="h3" sx={{ flexGrow: 1 }}>
+                Contest Dashboard
               </Typography>
               <Button
                 variant="contained"

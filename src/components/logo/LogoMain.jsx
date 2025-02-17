@@ -24,7 +24,7 @@ const Logo = () => {
      */
     <>
 
-      <img src={MXplorerLogo} alt="Mantis" width="50" />
+      <img src={MXplorerLogo} alt="MXp" width="50" />
       
     </>
   );

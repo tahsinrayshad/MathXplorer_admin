@@ -53,7 +53,7 @@ const convertLocalToUTC = (localTime) => {
   
   // Check if the date is valid
   if (isNaN(localDate.getTime())) {
-    console.error("Invalid Date Format:", localTime);
+    // console.error("Invalid Date Format:", localTime);
     return "";
   }
 
@@ -146,13 +146,13 @@ export default function EditContest() {
     const token = localStorage.getItem("token");
     if (!token) return;
   
-    // // Debugging: Log raw input before conversion
+    // Debugging: Log raw input before conversion
     // console.log("Raw Start Time from Form:", formData.startTime);
     // console.log("Raw End Time from Form:", formData.endTime);
   
-    // // Convert times to UTC+0 format
-    // const formattedStartTime = convertLocalToUTC(formData.startTime);
-    // const formattedEndTime = convertLocalToUTC(formData.endTime);
+    // Convert times to UTC+0 format
+    const formattedStartTime = convertLocalToUTC(formData.startTime);
+    const formattedEndTime = convertLocalToUTC(formData.endTime);
   
     // Get the user's timezone
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -37,11 +38,25 @@ export default function IncomeAreaChart({ slot }) {
   const line = theme.palette.divider;
 
   const [options, setOptions] = useState(areaChartOptions);
+  const [series, setSeries] = useState([
+    {
+      name: 'Contest Submissions',
+      data: []
+    },
+    {
+      name: 'Practise Submissions',
+      data: []
+    }
+  ]);
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setOptions((prevState) => ({
       ...prevState,
-      colors: [theme.palette.primary.main, theme.palette.primary[700]],
+      // colors: ['#00246B', theme.palette.primary.main], // Set Practise Submissions color to red
+      // colors: ['#89ABE3', '#EA738D'], // Set Practise Submissions color to red
+      colors: ['#EA738D','#89ABE3'], // Set Practise Submissions color to red
       xaxis: {
         categories:
           slot === 'month'
@@ -84,31 +99,72 @@ export default function IncomeAreaChart({ slot }) {
     }));
   }, [primary, secondary, line, theme, slot]);
 
-  const [series, setSeries] = useState([
-    {
-      name: 'Page Views',
-      data: [0, 86, 28, 115, 48, 210, 136]
-    },
-    {
-      name: 'Sessions',
-      data: [0, 43, 14, 56, 24, 105, 68]
-    }
-  ]);
-
   useEffect(() => {
-    setSeries([
-      {
-        name: 'Page Views',
-        data: slot === 'month' ? [76, 85, 101, 98, 87, 105, 91, 114, 94, 86, 115, 35] : [31, 40, 28, 51, 42, 109, 100]
-      },
-      {
-        name: 'Sessions',
-        data: slot === 'month' ? [110, 60, 150, 35, 60, 36, 26, 45, 65, 52, 53, 41] : [11, 32, 45, 32, 34, 52, 41]
+    const fetchSubmissionData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error("Token is missing.");
+          return;
+        }
+
+        // Fetch Contest Submissions
+        const contestResponse = await axios.get("http://127.0.0.1:8000/api/common/submission/contest/in", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        // Fetch Practise Submissions
+        const practiseResponse = await axios.get("http://127.0.0.1:8000/api/common/submission/contest/out", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        // Handle Missing Data
+        const contestData = slot === 'month'
+          ? handleMissingData(Object.keys(contestResponse.data.submission_count_by_month), ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'], contestResponse.data.submission_count_by_month)
+          : handleMissingData(Object.keys(contestResponse.data.submission_counts_by_day), ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], contestResponse.data.submission_counts_by_day);
+
+        const practiseData = slot === 'month'
+          ? handleMissingData(Object.keys(practiseResponse.data.submission_count_by_month), ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'], practiseResponse.data.submission_count_by_month)
+          : handleMissingData(Object.keys(practiseResponse.data.submission_counts_by_day), ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], practiseResponse.data.submission_counts_by_day);
+
+        setSeries([
+          {
+            name: 'Contest Submissions',
+            data: contestData
+          },
+          {
+            name: 'Practise Submissions',
+            data: practiseData
+          }
+        ]);
+
+      } catch (error) {
+        console.error("Error fetching submission data:", error);
+      } finally {
+        setLoading(false);
       }
-    ]);
+    };
+
+    fetchSubmissionData();
   }, [slot]);
+
+  // Helper function to handle missing data
+  const handleMissingData = (currentDataKeys, allKeys, currentData) => {
+    const filledData = allKeys.map(key => (currentDataKeys.includes(key) ? currentData[key] : 0));
+    return filledData;
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return <ReactApexChart options={options} series={series} type="area" height={450} />;
 }
 
-IncomeAreaChart.propTypes = { slot: PropTypes.string };
+IncomeAreaChart.propTypes = { 
+  slot: PropTypes.string 
+};

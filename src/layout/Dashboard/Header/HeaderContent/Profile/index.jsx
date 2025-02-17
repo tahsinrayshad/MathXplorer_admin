@@ -113,7 +113,7 @@ export default function Profile() {
             sx={{
               width: 32,
               height: 32,
-              backgroundColor: 'grey',
+              backgroundColor: '#1E90FF',
               borderRadius: '50%',
               display: 'flex',
               justifyContent: 'center',
@@ -160,7 +160,7 @@ export default function Profile() {
                             sx={{
                               width: 32,
                               height: 32,
-                              backgroundColor: 'grey',
+                              backgroundColor: '#1E90FF',
                               borderRadius: '50%',
                               display: 'flex',
                               justifyContent: 'center',

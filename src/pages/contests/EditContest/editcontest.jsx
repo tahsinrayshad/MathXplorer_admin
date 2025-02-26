@@ -216,7 +216,7 @@ export default function EditContest() {
 
     try {
       await axios.post(
-        "http://127.0.0.1:8000/api/contest/problem/add/",
+        "http://127.0.0.1:8000/api/admin/contest/problem/add/",
         {
           contest_id: id,
           problem_id: problem.id,
@@ -239,7 +239,7 @@ export default function EditContest() {
 
     try {
       await axios.post(
-        "http://127.0.0.1:8000/api/contest/problem/remove/",
+        "http://127.0.0.1:8000/api/admin/contest/problem/remove/",
         {
           contest_id: id,  // Contest ID from useParams()
           problem_id: problemId,  // Problem ID to be removed

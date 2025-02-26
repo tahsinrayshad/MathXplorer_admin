@@ -61,8 +61,8 @@
     const TableHeader = ({ label, property }) => (
         <TableCell
         sx={{
-            backgroundColor: "#1565C0",
-            color: "white", // Make font color white
+            backgroundColor: "white",
+            color: "#1565C0", // Make font color white
             fontWeight: "bold",
         }}
         >
@@ -72,9 +72,9 @@
             onClick={handleRequestSort(property)}
             sx={{
             "& .MuiTableSortLabel-icon": {
-                color: "white !important",
+                color: "#1565C0 !important",
             },
-            color: "white !important", // Ensure font color of header is white
+            color: "#1565C0 !important", // Ensure font color of header is white
             }}
         >
             {label}
@@ -84,6 +84,11 @@
 
     return (
         <Paper sx={{ width: "100%", mb: 2 }}>
+        <Box sx={{ padding: 2, textAlign: "center" }}>
+            <Typography variant="h5" sx={{ fontSize: "24px", fontWeight: 600 }}>
+                All Users
+            </Typography>
+        </Box>
         <TableContainer>
             <Table sx={{ minWidth: 750 }}>
             <TableHead>
@@ -125,19 +130,19 @@
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             sx={{
-            backgroundColor: "#1565C0",
-            color: "white",
+            backgroundColor: "white",
+            color: "#1565C0",
             "& .MuiTablePagination-actions": {
-                color: "white",
+                color: "#1565C0",
             },
             "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-                color: "white",
+                color: "#1565C0",
             },
             "& .MuiTablePagination-select": {
-                color: "white",
+                color: "#1565C0",
             },
             "& .MuiTablePagination-selectIcon": {
-                color: "white",
+                color: "#1565C0",
             },
             }}
         />

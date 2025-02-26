@@ -18,6 +18,7 @@ import rehypeKatex from 'rehype-katex'; // LaTeX support
 import remarkMath from 'remark-math'; // Markdown math support
 import 'katex/dist/katex.min.css'; // Required CSS for LaTeX rendering
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function AnnouncementsTable() {
   const [announcements, setAnnouncements] = useState([]);
@@ -25,14 +26,28 @@ export default function AnnouncementsTable() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  // Function to get user's local timezone
+const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+const formatLocalTime = (utcTime) => {
+  const utcDate = new Date(utcTime + " UTC");
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+    timeZone: userTimezone,
+  }).format(utcDate);
+};
+
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/notice/all/');
-        if (!response.ok) {
-          throw new Error('Failed to fetch announcements');
-        }
-        const data = await response.json();
+        const response = await axios.get('http://127.0.0.1:8000/api/notice/all/');
+        const data = response.data;
 
         // Sort announcements by created_at (latest first)
         const sortedAnnouncements = data.notices.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -56,16 +71,18 @@ export default function AnnouncementsTable() {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/notice/delete/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id }),
-      });
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/notice/delete/',
+        { id },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error('Failed to delete the announcement');
       }
 

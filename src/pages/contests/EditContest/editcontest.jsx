@@ -19,6 +19,7 @@ import {
   CircularProgress,
   IconButton,
   Chip,
+  Grid,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -209,12 +210,13 @@ export default function EditContest() {
     setProblemDialogOpen(false);
   };
 
-  // Add Problem to Contest
+  // Add Problem to Contest and Remove it from the Available Problems Table
   const handleSelectProblem = async (problem) => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
+      // First, add the problem to the contest
       await axios.post(
         "http://127.0.0.1:8000/api/admin/contest/problem/add/",
         {
@@ -225,7 +227,17 @@ export default function EditContest() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setProblems((prev) => [...prev, problem]);
+      // Remove the selected problem from the available problems list
+      setAllProblems((prev) =>
+        prev.filter((p) => p.id !== problem.id)
+      );
+
+      // Optionally, you can also add the problem to the contest's problems list
+      setProblems((prev) => [
+        ...prev,
+        { id: problem.id, title: problem.title, xp: problem.xp },
+      ]);
+
     } catch (error) {
       console.error("Error adding problem:", error);
     }
@@ -259,41 +271,78 @@ export default function EditContest() {
 
   return (
     
+    
     <Container maxWidth="md" sx={{ py: 4 }}>
+      <Typography align="center" sx={{ fontSize: "24px", fontWeight: 600, mb: 4 }}>
+        Edit Contest
+      </Typography> 
 
-
-
-
-<Typography align="center" sx={{ fontSize: "24px", fontWeight: 600 }}>
-      Edit Contest
-    </Typography>
+      <Grid container spacing={4}>
+        <Grid item xs={12} sm={12}>
+          <TextField
+            fullWidth
+            name="title"
+            label="Title"
+            value={formData.title}
+            onChange={handleInputChange}
+          />
+        </Grid>
+        <Grid item xs={12} sm={12}>
+          <TextField
+            fullWidth
+            name="description"
+            label="Description"
+            value={formData.description}
+            onChange={handleInputChange}
+            multiline
+            rows={4}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField 
+            label="Current Start Time" 
+            value={formData.startTime} 
+            fullWidth 
+            variant="outlined" 
+            InputProps={{ readOnly: true }} 
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField 
+            label="Current End Time" 
+            value={formData.endTime} 
+            fullWidth 
+            variant="outlined" 
+            InputProps={{ readOnly: true }} 
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            name="startTime"
+            type="datetime-local"
+            label="New Start Time"
+            value={formData.startTime ? formData.startTime.replace(" ", "T") : ""}
+            onChange={handleInputChange}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            name="endTime"
+            type="datetime-local"
+            label="New End Time"
+            value={formData.endTime ? formData.endTime.replace(" ", "T") : ""}
+            onChange={handleInputChange}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+      </Grid>
+      
 
     <Box sx={{ mt: 4, display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* Form Fields */}
-      <TextField fullWidth name="title" label="Title" value={formData.title} onChange={handleInputChange} />
-      <TextField
-        fullWidth
-        name="startTime"
-        type="datetime-local"
-        label="Start Time"
-        value={formData.startTime ? formData.startTime.replace(" ", "T") : ""} // ✅ Display correctly
-        onChange={handleInputChange}
-        InputLabelProps={{ shrink: true }} // ✅ Ensures label stays visible
-      />
-
-      <TextField
-        fullWidth
-        name="endTime"
-        type="datetime-local"
-        label="End Time"
-        value={formData.endTime ? formData.endTime.replace(" ", "T") : ""} // ✅ Display correctly
-        onChange={handleInputChange}
-        InputLabelProps={{ shrink: true }} // ✅ Ensures label stays visible
-      />
-
-      <TextField fullWidth name="description" label="Description" value={formData.description} onChange={handleInputChange} multiline rows={4} />
-
-      {/* Problem Set Table */}
+      
       <Typography variant="h6">Problem Set</Typography>
       <Button variant="outlined" onClick={handleAddProblem}>+ ADD PROBLEM</Button>
 
@@ -333,6 +382,7 @@ export default function EditContest() {
         {/* <Button variant="outlined" onClick={handleAddProblem}>+ ADD PROBLEM</Button> */}
 
         {/* Problem Selection Dialog */}
+        {/* Problem Selection Dialog */}
         <Dialog open={problemDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="md">
           <DialogTitle>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -362,20 +412,26 @@ export default function EditContest() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {allProblems.filter((problem) =>
-                      problem.title.toLowerCase().includes(searchTerm.toLowerCase())
-                    ).map((problem) => (
-                      <TableRow key={problem.id}>
-                        <TableCell>{problem.id}</TableCell>
-                        <TableCell>{problem.title}</TableCell>
-                        <TableCell>{problem.xp}</TableCell>
-                        <TableCell align="right">
-                          <Button size="small" variant="outlined" onClick={() => handleSelectProblem(problem)}>
-                            Add
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {allProblems
+                      .filter((problem) =>
+                        problem.title.toLowerCase().includes(searchTerm.toLowerCase())
+                      )
+                      .map((problem) => (
+                        <TableRow key={problem.id}>
+                          <TableCell>{problem.id}</TableCell>
+                          <TableCell>{problem.title}</TableCell>
+                          <TableCell>{problem.xp}</TableCell>
+                          <TableCell align="right">
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => handleSelectProblem(problem)}
+                            >
+                              Add
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -390,5 +446,7 @@ export default function EditContest() {
         <Button variant="contained" color="primary" onClick={handleSaveEdit}>Save</Button>
       </Box>
     </Container>
+
   );
 }
+

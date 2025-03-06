@@ -27,26 +27,28 @@ export default function ContestDetails() {
   const [error, setError] = useState(null);
   const [canEdit, setCanEdit] = useState(true); // State to track if Edit button should be visible
 
-  useEffect(() => {
-    const fetchContestDetails = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("Authorization token missing.");
-          setLoading(false);
-          return;
-        }
 
-        // Fetch contest details
-        const contestResponse = await axios.get(`http://127.0.0.1:8000/api/admin/contest/single/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+useEffect(() => {
+  const fetchContestDetails = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Authorization token missing.");
+        setLoading(false);
+        return;
+      }
 
-        if (contestResponse.data.contest.length > 0) {
-          setContest(contestResponse.data.contest[0]);
-        } else {
-          setError("Contest not found.");
-        }
+      // Fetch contest details
+      const contestResponse = await axios.get(`http://127.0.0.1:8000/api/admin/contest/single/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (contestResponse.data.contest.length > 0) {
+        const contestData = contestResponse.data.contest[0];
+        setContest(contestData);
+
+        const contestStartTime = new Date(contestData.start_time.replace(' ', 'T') + 'Z'); // Convert to ISO format
+        console.log("Start Time (Formatted) : ", formatLocalTime(contestStartTime.toISOString()));
 
         // Fetch contest problems
         const problemsResponse = await axios.get(`http://127.0.0.1:8000/api/admin/contest/problem/${id}`, {
@@ -57,37 +59,85 @@ export default function ContestDetails() {
           setProblems(problemsResponse.data.problems);
         }
 
-        // Check if the contest's start time is in the future or not
+        // Current time and comparison
         const currentTime = new Date();
-        const contestStartTime = new Date(contestResponse.data.contest[0].start_time);
+        console.log("Current Time:", currentTime);
+
+        console.log("Start Time : ", contestStartTime);
+        const diff = currentTime - contestStartTime;
+        console.log("Difference: ", diff);
+
         if (contestStartTime < currentTime) {
           setCanEdit(false); // Disable edit if the contest start time is in the past
         }
-      } catch (err) {
-        setError("Failed to fetch contest details.");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchContestDetails();
-  }, [id]);
+      } else {
+        setError("Contest not found.");
+      }
+
+    } catch (err) {
+      setError("Failed to fetch contest details.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchContestDetails();
+}, [id]);
+
 
   const formatLocalTime = (utcTime) => {
     if (!utcTime) return "N/A";
-    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const utcDate = new Date(utcTime + " UTC");
-    return new Intl.DateTimeFormat(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-      timeZone: userTimezone,
-    }).format(utcDate);
+    try {
+      // Ensuring the time string is in a full ISO 8601 format with 'Z' to indicate UTC
+      const utcDate = new Date(utcTime.replace(" ", "T") + "Z");
+      if (isNaN(utcDate)) throw new Error("Invalid date"); // This will catch invalid dates
+  
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      return new Intl.DateTimeFormat(undefined, {
+        weekday: 'short', // "Fri"
+        year: 'numeric', // "2025"
+        month: 'short', // "Mar"
+        day: 'numeric', // "07"
+        hour: '2-digit', // "00"
+        minute: '2-digit', // "10"
+        second: '2-digit', // "05"
+        hour12: false, // use 24-hour time without AM/PM
+        timeZone: userTimezone
+      }).format(utcDate);
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      return "Invalid date format";
+    }
   };
+
+
+  const formatLocalTime12H = (utcTime) => {
+    if (!utcTime) return "N/A";
+    try {
+      // Ensuring the time string is in a full ISO 8601 format with 'Z' to indicate UTC
+      const utcDate = new Date(utcTime.replace(" ", "T") + "Z");
+      if (isNaN(utcDate)) throw new Error("Invalid date"); // This will catch invalid dates
+  
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      return new Intl.DateTimeFormat(undefined, {
+        weekday: 'short', // "Fri"
+        year: 'numeric', // "2025"
+        month: 'short', // "Mar"
+        day: 'numeric', // "07"
+        hour: '2-digit', // "00"
+        minute: '2-digit', // "10"
+        second: '2-digit', // "05"
+        hour12: true, // use 12-hour time with AM/PM
+        timeZone: userTimezone
+      }).format(utcDate);
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      return "Invalid date format";
+    }
+  };
+  
 
   if (loading) {
     return (
@@ -120,8 +170,21 @@ export default function ContestDetails() {
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField label="Title" value={contest?.title || ""} fullWidth variant="outlined" InputProps={{ readOnly: true }} />
-          <TextField label="Start Time" value={formatLocalTime(contest?.start_time)} fullWidth variant="outlined" InputProps={{ readOnly: true }} />
-          <TextField label="End Time" value={formatLocalTime(contest?.end_time)} fullWidth variant="outlined" InputProps={{ readOnly: true }} />
+          <TextField 
+            label="Start Time" 
+            value={contest ? formatLocalTime12H(contest.start_time) : "Loading..."} 
+            fullWidth 
+            variant="outlined" 
+            InputProps={{ readOnly: true }} 
+          />
+          <TextField 
+            label="End Time" 
+            value={contest ? formatLocalTime12H(contest.end_time) : "Loading..."} 
+            fullWidth 
+            variant="outlined" 
+            InputProps={{ readOnly: true }} 
+          />
+
           <TextField
             label="Description"
             value={contest?.description || "No description available."}
@@ -219,3 +282,4 @@ export default function ContestDetails() {
     </Container>
   );
 }
+

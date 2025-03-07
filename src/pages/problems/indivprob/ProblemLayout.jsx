@@ -176,7 +176,7 @@ const ProblemView = () => {
       </Box>
 
       {/* Notes Section */}
-      <Card sx={{ mt: 4 }}>
+      {/* <Card sx={{ mt: 4 }}>
         <CardContent>
           <Typography variant="h5" sx={{ mb: 2 }}>
             Notes
@@ -185,7 +185,22 @@ const ProblemView = () => {
             {problem.note}
           </Typography>
         </CardContent>
+      </Card> */}
+
+      {/* Notes Section */}
+      <Card sx={{ mt: 4 }}>
+        <CardContent>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Notes
+          </Typography>
+          <ReactMarkdown
+            children={problem.note}
+            remarkPlugins={[remarkMath]}  // Use remarkMath for LaTeX syntax
+            rehypePlugins={[rehypeKatex]}  // Use rehypeKatex for rendering with KaTeX
+          />
+        </CardContent>
       </Card>
+
 
       {/* Only show the "Approve" button if the status is "Pending" */}
           {problem.status === "pending" && (

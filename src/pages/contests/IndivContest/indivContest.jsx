@@ -27,65 +27,63 @@ export default function ContestDetails() {
   const [error, setError] = useState(null);
   const [canEdit, setCanEdit] = useState(true); // State to track if Edit button should be visible
 
+  useEffect(() => {
+    const fetchContestDetails = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("Authorization token missing.");
+          setLoading(false);
+          return;
+        }
 
-useEffect(() => {
-  const fetchContestDetails = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Authorization token missing.");
-        setLoading(false);
-        return;
-      }
-
-      // Fetch contest details
-      const contestResponse = await axios.get(`http://127.0.0.1:8000/api/admin/contest/single/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (contestResponse.data.contest.length > 0) {
-        const contestData = contestResponse.data.contest[0];
-        setContest(contestData);
-
-        const contestStartTime = new Date(contestData.start_time.replace(' ', 'T') + 'Z'); // Convert to ISO format
-        console.log("Start Time (Formatted) : ", formatLocalTime(contestStartTime.toISOString()));
-
-        // Fetch contest problems
-        const problemsResponse = await axios.get(`http://127.0.0.1:8000/api/admin/contest/problem/${id}`, {
+        // Fetch contest details
+        const contestResponse = await axios.get(`http://127.0.0.1:8000/api/admin/contest/single/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (problemsResponse.data.problems) {
-          setProblems(problemsResponse.data.problems);
+        if (contestResponse.data.contest.length > 0) {
+          const contestData = contestResponse.data.contest[0];
+          setContest(contestData);
+
+          const contestStartTime = new Date(contestData.start_time.replace(' ', 'T') + 'Z'); // Convert to ISO format
+          console.log("Start Time (Formatted) : ", formatLocalTime(contestStartTime.toISOString()));
+
+          // Fetch contest problems
+          const problemsResponse = await axios.get(`http://127.0.0.1:8000/api/admin/contest/problem/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (problemsResponse.data.problems) {
+            setProblems(problemsResponse.data.problems);
+          }
+
+          // Current time and comparison
+          const currentTime = new Date();
+          console.log("Current Time:", currentTime);
+
+          console.log("Start Time : ", contestStartTime);
+          const diff = currentTime - contestStartTime;
+          console.log("Difference: ", diff);
+
+          if (contestStartTime < currentTime) {
+            setCanEdit(false); // Disable edit if the contest start time is in the past
+          }
+
+        } else {
+          setError("Contest not found.");
         }
 
-        // Current time and comparison
-        const currentTime = new Date();
-        console.log("Current Time:", currentTime);
-
-        console.log("Start Time : ", contestStartTime);
-        const diff = currentTime - contestStartTime;
-        console.log("Difference: ", diff);
-
-        if (contestStartTime < currentTime) {
-          setCanEdit(false); // Disable edit if the contest start time is in the past
-        }
-
-      } else {
-        setError("Contest not found.");
+      } catch (err) {
+        setError("Failed to fetch contest details.");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-    } catch (err) {
-      setError("Failed to fetch contest details.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchContestDetails();
-}, [id]);
-
+    fetchContestDetails();
+  }, [id]);
 
   const formatLocalTime = (utcTime) => {
     if (!utcTime) return "N/A";
@@ -112,7 +110,6 @@ useEffect(() => {
     }
   };
 
-
   const formatLocalTime12H = (utcTime) => {
     if (!utcTime) return "N/A";
     try {
@@ -137,7 +134,52 @@ useEffect(() => {
       return "Invalid date format";
     }
   };
-  
+
+  // Function to handle rating calculation
+  // Function to handle rating calculation
+// Function to handle rating calculation
+const calculateRating = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Authorization token missing.");
+      return;
+    }
+
+    // Prepare the data to be sent in the POST request
+    const data = {
+      contest_id: id, // Ensure this is the correct data format expected by the API
+    };
+
+    // Log the data being sent to confirm the format
+    console.log("Sending data:", data);
+
+    // Send the POST request to calculate the rating
+    const response = await axios.post(
+      `http://127.0.0.1:8000/api/admin/rating/calculate`, 
+      data, // Send the data as the request body
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (response.data.message === "Ratings updated successfully.") {
+      alert('Ratings updated successfully.');
+    } else {
+      setError("Failed to calculate rating.");
+      console.log("Error:Line 481");
+    }
+  } catch (err) {
+    if (err.response && err.response.data.message === "Ratings already calculated for this contest.") {
+      alert("Ratings have already been calculated for this contest.");
+    } else {
+      setError("Failed to calculate rating.");
+      console.log("Error:Line 488");
+    }
+    console.error("Error:", err.response ? err.response.data : err);
+  }
+};
+
 
   if (loading) {
     return (
@@ -243,6 +285,25 @@ useEffect(() => {
       {/* Edit and Back Buttons */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
         <Button
+          variant="filled"
+          color="primary"
+          onClick={calculateRating}  // Trigger calculateRating function
+          sx={{
+            mr: "auto",
+            fontSize: "12px",
+            fontWeight: "bold",
+            padding: "10px 20px",
+            backgroundColor: "#8d256f",
+            color: "#FFFFFF",
+            "&:hover": {
+              backgroundColor: "#6d1d55",
+              color: "#FFFFFF",
+            },
+          }}
+        >
+          Calculate Rating
+        </Button>
+        <Button
           variant="outlined"
           color="primary"
           onClick={() => navigate(`/contests/`)}  // Navigate back to contests list
@@ -282,4 +343,3 @@ useEffect(() => {
     </Container>
   );
 }
-

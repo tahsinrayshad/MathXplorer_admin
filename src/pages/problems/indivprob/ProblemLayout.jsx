@@ -21,10 +21,11 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css"; // Import KaTeX CSS for math rendering
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const ProblemView = () => {
   const { id } = useParams();
+  const navigate = useNavigate();  // Initialize the navigate function
   const [open, setOpen] = useState(false);
   const [problem, setProblem] = useState(null);
   const [answer, setAnswer] = useState("");
@@ -43,7 +44,7 @@ const ProblemView = () => {
           return;
         }
   
-        const response = await axios.get(`http://127.0.0.1:8000/api/admin/problem/${id}`, {
+        const response = await axios.get(`http://127.0.0.1:8000/api/admin/problem/single/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Send the token in the headers
           },
@@ -59,7 +60,6 @@ const ProblemView = () => {
   
     fetchProblem();
   }, [id]);
-  
 
   const handleApprove = async () => {
     try {
@@ -89,8 +89,6 @@ const ProblemView = () => {
       console.error("Error approving the problem:", error);
     }
   };
-  
-  
 
   // Handle submitting the answer
   const handleSubmit = (e) => {
@@ -175,15 +173,29 @@ const ProblemView = () => {
         </Card>
       </Box>
 
-      {/* Notes Section */}
+      {/* Answer Section - Display answer above the notes */}
+      <Card sx={{ mt: 4 }}>
+        <CardContent>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Answer
+          </Typography>
+          <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+            {problem.answer}
+          </Typography>
+        </CardContent>
+      </Card>
+
+      {/* Notes Section Preview */}
       {/* <Card sx={{ mt: 4 }}>
         <CardContent>
           <Typography variant="h5" sx={{ mb: 2 }}>
-            Notes
+            Notes Preview
           </Typography>
-          <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
-            {problem.note}
-          </Typography>
+          <ReactMarkdown
+            children={problem.note}
+            remarkPlugins={[remarkMath]}  // Use remarkMath for LaTeX syntax
+            rehypePlugins={[rehypeKatex]}  // Use rehypeKatex for rendering with KaTeX
+          />
         </CardContent>
       </Card> */}
 
@@ -201,28 +213,32 @@ const ProblemView = () => {
         </CardContent>
       </Card>
 
+      {/* Buttons Section */}
+      <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
+        {/* Only show the "Approve" button if the status is "Pending" */}
+        {problem.status === "pending" && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleApprove}
+            sx={{ mt: 2 }}
+          >
+            Approve
+          </Button>
+        )}
 
-      {/* Only show the "Approve" button if the status is "Pending" */}
-          {problem.status === "pending" && (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleApprove}
-              sx={{ mt: 2 }}
-            >
-              Approve
-            </Button>
-          )}
+        {/* Edit Button to navigate to the edit page */}
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => navigate(`/problems/edit/${problem.id}`)} // Redirect to the edit page
+          sx={{ mt: 2 }}
+        >
+          Edit
+        </Button>
+      </Box>
     </Box>
   );
 };
 
 export default ProblemView;
-
-
-
-
-
-
-
-
